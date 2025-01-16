@@ -1,0 +1,10 @@
+git config --global user.name "phdinspd"
+git config --global user.email chaver.yadim@gmail.com
+git config --global init.defaultBranch main
+
+git config --list
+
+git remote add origin https://github.com/phdinspd/cymatix_demo.git
+git remote -v
+
+git remote rename repo.git cymatix_demo.git
