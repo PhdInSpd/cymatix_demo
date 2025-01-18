@@ -1,10 +1,33 @@
 import time
-from PoitionStateMachineSrc import PositionStateMachine
+from PoitionStateMachineSrc import MotorStateMachine
 import myactuator_v3_library as ml
 
 # testTon()
 ml.motor_stop(1)
-pss1 = PositionStateMachine(unitID=1,
+profile = [[5,.50], # degress/sec , sec
+           [6,.50],
+           [7,.750],
+           [8,.750],
+           [9,.75],
+           [10,.75],
+           [20,.75],
+           [30,.75],
+           [40,.75],
+           [50,.75],
+           [0,1],
+           [-5,.50],
+           [-6,.50],
+           [-7,.750],
+           [-8,.75],
+           [-9,.75],
+           [-10,.75],
+           [-20,.75],
+           [-30,.75],
+           [-40,.75],
+           [-50,.75],
+           [0,1]]
+i: int =0
+pss1 = MotorStateMachine(unitID=1,
                            totalCycles=0,
                            bigMoveVelocity=100,
                            smallMoveVelocity=50,
@@ -13,16 +36,16 @@ pss1 = PositionStateMachine(unitID=1,
                            bigMovePause=.375,
                            smallMovePause=.125)
 
-pss2 = PositionStateMachine(unitID=2,
+pss2 = MotorStateMachine(unitID=2,
                            totalCycles=0,
                            bigMoveVelocity=3000,
                            smallMoveVelocity=1000,
-                           totalMove=360*5,
+                           totalMove=360*2,
                            noSmallMoves=10,
                            bigMovePause=.375,
                            smallMovePause=.125)
 
-pss3 = PositionStateMachine(unitID=3,
+pss3 = MotorStateMachine(unitID=3,
                            totalCycles=0,
                            bigMoveVelocity=3000,
                            smallMoveVelocity=1000,
@@ -37,7 +60,7 @@ while not done:
     axis3Running: bool = False
 
     try:
-        axis1Running = pss1.runState() >=0
+        axis1Running = pss1.runProfile(profile) >=0
     except Exception as err:
         print(f"{pss1.unitID.__str__()}{err=}, {type(err)=}")
     

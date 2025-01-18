@@ -4,7 +4,7 @@ from typing import Final
 
 from plc import Ton
 
-deadBand: Final[int] = 1.5*100
+deadBand: Final[int] = 3.0*100
 def inRange(targetPos,accualPos, band=deadBand)->bool:
     max:float = targetPos + band
     min:float = targetPos - band
@@ -23,7 +23,7 @@ def testTon():
             print( ton.SecTimeout )
         time.sleep(0.002)
 
-class PositionStateMachine:
+class MotorStateMachine:
     def __init__(self, unitID, totalCycles, bigMoveVelocity, smallMoveVelocity, totalMove, noSmallMoves, bigMovePause, smallMovePause):
         self.unitID = unitID
         self.totalCycles = totalCycles
@@ -122,6 +122,35 @@ class PositionStateMachine:
                     else:
                         print(f'Done {self.unitID}')
                         self.state = -1
+            # If an exact match is not confirmed, this last case will be used if provided
+            case _:
+                self.state=-1
+        return self.state
+    
+    def runProfile(self, profile)->int:
+        match self.state:
+            case 0: #initialize
+                ml.motor_stop(self.unitID)
+                self.startPos = getMotorAngle(self.unitID)
+                self.cycles =0
+                self.state=100
+
+            case 100: # start velocity
+                point = profile[self.cycles]
+                print(f"velocity {self.unitID}:{point[0]}")
+                status = ml.speed_closed_loop_control(self.unitID, point[0]*100)
+                self.tonPause.SecTimeout = point[1]
+                self.tonPause.CLK(False)
+                self.state=200
+
+            case 200: # velocity pause
+                if( self.tonPause.CLK(True) ):
+                    self.tonPause.CLK(False)
+                    self.cycles += 1
+                    if self.cycles >= len( profile):
+                        self.cycles =0
+                    self.state = 100
+
             # If an exact match is not confirmed, this last case will be used if provided
             case _:
                 self.state=-1
