@@ -31,17 +31,17 @@ pss1 = MotorStateMachine(unitID=1,
                            totalCycles=0,
                            bigMoveVelocity=100,
                            smallMoveVelocity=50,
-                           totalMove=18,
-                           noSmallMoves=10,
+                           totalMove=int(360*0.5),
+                           noSmallMoves=7,
                            bigMovePause=.375,
-                           smallMovePause=.125)
+                           smallMovePause=0.375)
 
 pss2 = MotorStateMachine(unitID=2,
                            totalCycles=0,
                            bigMoveVelocity=3000,
                            smallMoveVelocity=1000,
                            totalMove=360*2,
-                           noSmallMoves=10,
+                           noSmallMoves=19,
                            bigMovePause=.375,
                            smallMovePause=.125)
 
@@ -50,7 +50,7 @@ pss3 = MotorStateMachine(unitID=3,
                            bigMoveVelocity=3000,
                            smallMoveVelocity=1000,
                            totalMove=360,
-                           noSmallMoves=10,
+                           noSmallMoves=11,
                            bigMovePause=.375,
                            smallMovePause=.125)
 done: bool = False
@@ -60,7 +60,8 @@ while not done:
     axis3Running: bool = False
 
     try:
-        axis1Running = pss1.runProfile(profile) >=0
+        #axis1Running = pss1.runProfile(profile) >=0
+        axis1Running = pss1.runState() >=0
     except Exception as err:
         print(f"{pss1.unitID.__str__()}{err=}, {type(err)=}")
     
