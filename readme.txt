@@ -3,3 +3,4 @@ config rh as unit 1
     x4-3 unit 3
 configure multiturn master encoder for rh
     https://mail.google.com/mail/u/0/#inbox/KtbxLwGvZwwXWzHCKZSnqxVHgLNbXSFcRg
+read docs and make sure to install all pips list

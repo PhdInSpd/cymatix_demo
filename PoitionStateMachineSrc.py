@@ -4,6 +4,7 @@ from typing import Final
 
 from plc import Ton
 
+#deadBand: Final[int] = 3.0*200
 deadBand: Final[int] = 3.0*100
 def inRange(targetPos,accualPos, band=deadBand)->bool:
     max:float = targetPos + band
