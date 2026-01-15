@@ -68,17 +68,26 @@ while not done:
     try:
         axis2Running = pss2.runState() >=0
     except Exception as err:
-        print(f"{pss2.unitID.__str__()} {err=}, {type(err)=}")
+        try:
+            print(f"{pss2.unitID.__str__()} {err=}, {type(err)=}")
+        except:
+            pass
     
 
     try:
         axis3Running = pss3.runState() >=0
     except Exception as err:
-        print(f"{pss3.unitID.__str__()} {err=}, {type(err)=}")
+        try:
+            print(f"{pss3.unitID.__str__()} {err=}, {type(err)=}")
+        except:
+            pass
 
     #done = not axis1Running and not axis2Running and not axis3Running
     done =  not axis2Running and not axis3Running
 
-    time.sleep(0.002)
+    #time.sleep(0.002)
+    #time.sleep(0.02)
+    #time.sleep(0.032)
+    time.sleep(0.064)
 
 
