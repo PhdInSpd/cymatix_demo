@@ -4,6 +4,7 @@ import traceback
 from datetime import datetime
 from PoitionStateMachineSrc import MotorStateMachine
 import myactuator_v3_library as ml
+from plc import Ton
 
 # Error logging function
 def log_error(error_msg, exception=None):
@@ -73,9 +74,12 @@ pss3 = MotorStateMachine(unitID=3,
                            smallMovePause=.125)
 # Main execution with comprehensive error handling
 try:
+    log_error("Starting main execution",
+                exception=f"Tick")
+    
     iteration_count = 0
     max_iterations = 100000  # Safety limit to prevent infinite loops
-    
+    tonLog: Ton = Ton(60*10)  # Log every 10 minutes
     done: bool = False
     while not done:
         iteration_count += 1
@@ -95,7 +99,7 @@ try:
             error_msg = f"Motor {pss2.unitID} error: {err}, type={type(err)}"
             log_error(error_msg, err)
             print(error_msg)
-        
+        time.sleep(0.032)
 
         try:
             axis3Running = pss3.runState() >=0
@@ -103,14 +107,17 @@ try:
             error_msg = f"Motor {pss3.unitID} error: {err}, type={type(err)}"
             log_error(error_msg, err)
             print(error_msg)
+        time.sleep(0.032)
 
         #done = not axis1Running and not axis2Running and not axis3Running
         done =  not axis2Running and not axis3Running
-
+        if tonLog.CLK(True):
+            tonLog.CLK(False)
+            log_error("Alive check",
+                      exception=f"Tick")
         #time.sleep(0.002)
         #time.sleep(0.02)
-        #time.sleep(0.032)
-        time.sleep(0.064)
+        #time.sleep(0.064)
     
     if iteration_count >= max_iterations:
         log_error("Reached maximum iteration limit - possible infinite loop")

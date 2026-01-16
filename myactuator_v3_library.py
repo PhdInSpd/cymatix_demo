@@ -467,6 +467,12 @@ def read_motor_status_2(unitID:int):
 
     if response_message is None:
         raise TimeoutError(f"No CAN response from motor {unitID} (read_motor_status_2)")
+    
+    if response_message.data is None:
+        raise TimeoutError(f"No CAN response data from motor {unitID} (read_motor_status_2)")
+
+    if len(response_message.data) < 8:
+        raise TimeoutError(f"No CAN response data length from motor {unitID} (read_motor_status_2)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x9C:
         raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
