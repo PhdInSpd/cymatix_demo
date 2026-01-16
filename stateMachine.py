@@ -1,6 +1,24 @@
 import time
+import sys
+import traceback
+from datetime import datetime
 from PoitionStateMachineSrc import MotorStateMachine
 import myactuator_v3_library as ml
+
+# Error logging function
+def log_error(error_msg, exception=None):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open('crash_log.txt', 'a') as f:
+        f.write(f"\n{'='*60}\n")
+        f.write(f"[{timestamp}] ERROR\n")
+        f.write(f"{error_msg}\n")
+        if exception:
+            f.write(f"Exception: {exception}\n")
+            traceback.print_exc(file=f)
+        f.write(f"{'='*60}\n")
+    print(f"ERROR: {error_msg}")
+    if exception:
+        print(f"Exception details written to crash_log.txt")
 
 # testTon()
 #ml.motor_stop(1)
@@ -53,41 +71,67 @@ pss3 = MotorStateMachine(unitID=3,
                            noSmallMoves=11,
                            bigMovePause=.375,
                            smallMovePause=.125)
-done: bool = False
-while not done:
-    #axis1Running: bool = False
-    axis2Running: bool = False
-    axis3Running: bool = False
-
-    # try:
-    #     #axis1Running = pss1.runProfile(profile) >=0
-    #     axis1Running = pss1.runState() >=0
-    # except Exception as err:
-    #     print(f"{pss1.unitID.__str__()} {err=}, {type(err)=}")
+# Main execution with comprehensive error handling
+try:
+    iteration_count = 0
+    max_iterations = 100000  # Safety limit to prevent infinite loops
     
-    try:
-        axis2Running = pss2.runState() >=0
-    except Exception as err:
+    done: bool = False
+    while not done:
+        iteration_count += 1
+        #axis1Running: bool = False
+        axis2Running: bool = False
+        axis3Running: bool = False
+
+        # try:
+        #     #axis1Running = pss1.runProfile(profile) >=0
+        #     axis1Running = pss1.runState() >=0
+        # except Exception as err:
+        #     print(f"{pss1.unitID.__str__()} {err=}, {type(err)=}")
+        
         try:
-            print(f"{pss2.unitID.__str__()} {err=}, {type(err)=}")
-        except:
-            pass
+            axis2Running = pss2.runState() >=0
+        except Exception as err:
+            error_msg = f"Motor {pss2.unitID} error: {err}, type={type(err)}"
+            log_error(error_msg, err)
+            print(error_msg)
+        
+
+        try:
+            axis3Running = pss3.runState() >=0
+        except Exception as err:
+            error_msg = f"Motor {pss3.unitID} error: {err}, type={type(err)}"
+            log_error(error_msg, err)
+            print(error_msg)
+
+        #done = not axis1Running and not axis2Running and not axis3Running
+        done =  not axis2Running and not axis3Running
+
+        #time.sleep(0.002)
+        #time.sleep(0.02)
+        #time.sleep(0.032)
+        time.sleep(0.064)
     
-
+    if iteration_count >= max_iterations:
+        log_error("Reached maximum iteration limit - possible infinite loop")
+        print("WARNING: Reached maximum iteration limit")
+        
+except KeyboardInterrupt:
+    print("\nProgram interrupted by user")
+    log_error("Program interrupted by user (Ctrl+C)")
+except Exception as e:
+    log_error("FATAL ERROR - Program crashed", e)
+    print(f"\nFATAL ERROR: {e}")
+    print("Full traceback written to crash_log.txt")
+    traceback.print_exc()
+    sys.exit(1)
+finally:
+    print("\nProgram terminating...")
     try:
-        axis3Running = pss3.runState() >=0
-    except Exception as err:
-        try:
-            print(f"{pss3.unitID.__str__()} {err=}, {type(err)=}")
-        except:
-            pass
-
-    #done = not axis1Running and not axis2Running and not axis3Running
-    done =  not axis2Running and not axis3Running
-
-    #time.sleep(0.002)
-    #time.sleep(0.02)
-    #time.sleep(0.032)
-    time.sleep(0.064)
+        ml.motor_stop(2)
+        ml.motor_stop(3)
+        print("Motors stopped successfully")
+    except Exception as e:
+        log_error("Error stopping motors during cleanup", e)
 
 

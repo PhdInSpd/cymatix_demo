@@ -64,10 +64,10 @@ def read_pid_parameter(unitID:int):
     message = bus.recv(timeout=1)
     
     if message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response received from motor {unitID}")
 
     if message.arbitration_id != 0x240+unitID or message.data[0] != 0x30:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(message.arbitration_id)}, data={message.data.hex()}")
 
     # Extracting the parameters from the message data
     CurrKP = message.data[2]
@@ -165,10 +165,10 @@ def read_acceleration(unitID:int, function_index):
     response_message = bus.recv(timeout=1)
 
     if response_message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response from motor {unitID} (read_acceleration)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x42:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
 
     # Extract the acceleration value from the response data
     accel = response_message.data[4] + (response_message.data[5] << 8) + (response_message.data[6] << 16) + (response_message.data[7] << 24)
@@ -214,10 +214,10 @@ def write_acceleration(unitID:int, function_index, accel):
     response_message = bus.recv(timeout=1)
 
     if response_message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response from motor {unitID} (write_acceleration)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x43:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
 
     return "Acceleration written successfully"
 
@@ -231,10 +231,10 @@ def read_multi_turn_encoder_position(unitID:int):
     response_message = bus.recv(timeout=1)
 
     if response_message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response from motor {unitID} (read_multi_turn_encoder_position)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x60:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
 
     # Decode the encoder position from the response
     encoder_position = response_message.data[4] + \
@@ -254,10 +254,10 @@ def read_multi_turn_encoder_original_position(unitID:int):
     response_message = bus.recv(timeout=1)
 
     if response_message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response from motor {unitID} (read_multi_turn_encoder_original_position)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x61:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
 
     # Decode the encoder original position from the response
     encoder_original_position = response_message.data[4] + \
@@ -466,10 +466,10 @@ def read_motor_status_2(unitID:int):
     response_message = bus.recv(timeout=1)
 
     if response_message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response from motor {unitID} (read_motor_status_2)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x9C:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
 
     # Extract motor temperature from the response message
     motor_temperature = response_message.data[1]
@@ -500,10 +500,10 @@ def read_motor_status_3(unitID:int):
     response_message = bus.recv(timeout=1)
 
     if response_message is None:
-        return "No response received"
+        raise TimeoutError(f"No CAN response from motor {unitID} (read_motor_status_3)")
 
     if response_message.arbitration_id != 0x240+unitID or response_message.data[0] != 0x9D:
-        return "Unexpected response received"
+        raise ValueError(f"Unexpected CAN response from motor {unitID}: ID={hex(response_message.arbitration_id)}, cmd={hex(response_message.data[0])}")
 
     # Extract motor temperature from the response message
     motor_temperature = response_message.data[1]
