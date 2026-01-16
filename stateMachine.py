@@ -9,7 +9,7 @@ from plc import Ton
 # Error logging function
 def log_error(error_msg, exception=None):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open('crash_log.txt', 'a') as f:
+    with open('../crash_log.txt', 'a') as f:
         f.write(f"\n{'='*60}\n")
         f.write(f"[{timestamp}] ERROR\n")
         f.write(f"{error_msg}\n")
